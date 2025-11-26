@@ -43,3 +43,7 @@ pred = model.predict(Te_X)
 # Obtain test accuracy
 print( accuracy_score(pred, Te_Y) )
 
+best = model.getBestIndividual()
+print("Best individual: ", best)
+print(f"Dims: {best.getNumberOfDimensions()}, Size: {best.getSize()}")
+
