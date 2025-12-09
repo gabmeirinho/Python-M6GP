@@ -79,7 +79,7 @@ class M6GP:
 	def __init__(self, operators=[("+",2),("-",2),("*",2),("/",2)], max_initial_depth = 6, 
 		population_size = 500, max_generation = 100, max_depth = 17, tournament_size = 5,
 		dim_min = 1, dim_max = 9999, threads=1, random_state = 42, verbose = True, 
-		model_class=None, fitnesses=["Accuracy","Size"]):
+		model_class=None, fitnesses=["Accuracy","Size"], max_time = None):
 
 		if sum( [0 if op in [("+",2),("-",2),("*",2),("/",2)] else 0 for op in operators ] ) > 0:
 			print( "[Warning] Some of the following operators may not be supported:", operators)
@@ -106,6 +106,7 @@ class M6GP:
 
 		self.verbose = verbose
 
+		self.max_time = max_time
 
 
 
@@ -241,8 +242,16 @@ class M6GP:
 		'''
 		if self.verbose:
 			print("  > Running log:\n")
+		
 
+		if self.max_time is not None:
+			start_time = time.time()
+			self.max_generation = 9999999
 		while self.currentGeneration < self.max_generation:
+			if self.max_time is not None:
+				elapsed_time = time.time() - start_time
+				if elapsed_time >= self.max_time:
+					break
 			if not self.stoppingCriteria():
 				t1 = time.time()
 				self.nextGeneration()
