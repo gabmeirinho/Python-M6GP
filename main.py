@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.metrics import accuracy_score, f1_score
 
+import numpy as np
+
 import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning,
@@ -21,7 +23,7 @@ warnings.filterwarnings("ignore", category=FutureWarning,
 # Copyright ©2019-2025 J. E. Batista
 #
 
-runs = 20
+runs = 30
 runs_scores = []
 
 for run in range(runs):
@@ -35,10 +37,10 @@ for run in range(runs):
 
     # Split the dataset
     Tr_X, Te_X, Tr_Y, Te_Y = train_test_split(ds.drop(columns=[class_header]), ds[class_header], 
-    		train_size=0.7, random_state = 42, stratify = ds[class_header])
+    		train_size=0.7, random_state = 42+run, stratify = ds[class_header])
 
     # Train a model
-    model = M6GP(fitnesses=["2FOLD","Size"], population_size=100, max_time=600)
+    model = M6GP(fitnesses=["2FOLD","Size"], population_size=100, max_time=600, random_state=42+run, verbose=False)
     model.fit(Tr_X, Tr_Y)
 
     # Predict test results
@@ -46,12 +48,13 @@ for run in range(runs):
 
     # Obtain test accuracy
     # print( accuracy_score(pred, Te_Y) )
-    print(f1_score(pred, Te_Y, average='weighted') )
+    print(f1_score(Te_Y, pred, average='weighted') )
 
     best = model.getBestIndividual()
     print("Best individual: ", best)
     print(f"Dims: {best.getNumberOfDimensions()}, Size: {best.getSize()}")
-    runs_scores.append(f1_score(pred, Te_Y, average='weighted'))
+    runs_scores.append(f1_score(Te_Y, pred, average='weighted'))
 
-print(f"Average F1-score over {runs} runs: {sum(runs_scores)/len(runs_scores)}")
+print(f"Median F1-score over {runs} runs: {np.median(runs_scores)}")
+print(f"Mean F1-score over {runs} runs: {np.mean(runs_scores)}")
 
